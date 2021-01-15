@@ -23,6 +23,8 @@ type Task struct {
   status              string
   // IP address of this task (with default port)
   ip                  string
+  // port
+  port                string
   // the geolocation of this task
   geoLocation         *spincomm.Location
   // real-time resource usuage
@@ -59,10 +61,11 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
   // Select task in taskTable
   for _, task := range t.tasks {
     // Check (1) appId (2) geo-locality (3) resource-availability (4) bandwidth (no way now)
-    // 
+    //
     if task.status == "running"{
       result = append(result, &appcomm.Task{
         Ip: task.ip,
+        Port: task.port,
       })
       if len(result) >= numOfTasks {
         break

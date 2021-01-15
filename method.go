@@ -81,13 +81,14 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
           // Status of this task: created, scheduled, running, interrupt, finish, cancel, noResource
           status: "running",  // assume the task must be running if response sent back
           ip: taskLog.Ip,
+          port: taskLog.Port,
           // TODO: add geoLocation from response TaskLog
           geoLocation: &spincomm.Location{
             Lat: 1.1,
             Lon: 1.1,
           },
         }
-        log.Println(newTask.taskId)
+        log.Println("New task update: "+newTask.taskId.Value)
         // add the resource map
         resourceMap := make(map[string]*spincomm.ResourceStatus)
         for key, value := range taskLog.HostResource {
@@ -115,6 +116,7 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 }
 
 func (s *AppManagerServer) QueryTaskList(ctx context.Context, query *appcomm.Query) (*appcomm.TaskList, error) {
+  log.Println(query.ClientId)
   // get the clientInfo
   newClient := &Client{
     clientId: query.ClientId,
