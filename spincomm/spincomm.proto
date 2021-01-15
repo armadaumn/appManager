@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package spincomm;
 
-option go_package = "github.com/CodyPerakslis/armadanet/spinner/spincomm";
+option go_package = "github.com/armadanet/spincomm";
 
 service Spinner {
     rpc Attach (JoinRequest) returns (stream TaskRequest);

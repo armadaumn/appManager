@@ -4,8 +4,8 @@ import (
   "sync"
   "errors"
   "log"
-  spincomm "github.com/lei6669/appManager/spincomm"
-  appcomm "github.com/lei6669/appManager/appcomm"
+  spincomm "github.com/armadanet/appManager/spincomm"
+  appcomm "github.com/armadanet/appManager/appcomm"
 )
 
 // Define task table

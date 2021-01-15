@@ -13,8 +13,8 @@ import (
   "fmt"
   "strconv"
   "google.golang.org/grpc"
-  appcomm "github.com/lei6669/appManager/appcomm"
-  spincomm "github.com/lei6669/appManager/spincomm"
+  appcomm "github.com/armadanet/appManager/appcomm"
+  spincomm "github.com/armadanet/appManager/spincomm"
 )
 
 type AppManagerServer struct {

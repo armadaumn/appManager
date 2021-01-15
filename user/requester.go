@@ -6,7 +6,7 @@ import (
   "strconv"
   "google.golang.org/grpc"
   // appcomm "github.com/lei6669/appManager/appcomm"
-  appcomm "github.com/lei6669/appManager/user/appcomm"
+  appcomm "github.com/armadanet/appManager/user/appcomm"
 )
 
 func main() {

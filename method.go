@@ -16,8 +16,8 @@ import (
   "log"
   // "fmt"
   "google.golang.org/grpc"
-  spincomm "github.com/lei6669/appManager/spincomm"
-  appcomm "github.com/lei6669/appManager/appcomm"
+  spincomm "github.com/armadanet/appManager/spincomm"
+  appcomm "github.com/armadanet/appManager/appcomm"
 )
 
 func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, appStatus appcomm.ApplicationManager_SubmitApplicationServer) error {

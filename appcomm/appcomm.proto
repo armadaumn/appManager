@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package appcomm;
 
-option go_package = "github.com/lei6669/simulateArmada/appManager/appcomm";
+option go_package = "github.com/armadanet/appManager/appcomm";
 
 service ApplicationManager {
     rpc SubmitApplication (Application) returns (stream AppStatus);
