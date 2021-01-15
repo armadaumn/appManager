@@ -1,11 +1,13 @@
 package appManager
 
 import (
-  "sync"
+  appcomm "github.com/lei6669/appManager/appcomm"
+  spincomm "github.com/lei6669/appManager/spincomm"
   "errors"
   "log"
-  spincomm "github.com/lei6669/appManager/spincomm"
-  appcomm "github.com/lei6669/appManager/appcomm"
+  "sort"
+  "sync"
+  "github.com/mmcloughlin/geohash"
 )
 
 // Define task table
@@ -55,21 +57,82 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
   if numOfTasks > len(t.tasks) {
     return nil, errors.New("Not enough tasks in the system")
   }
-  var result []*appcomm.Task
+
+  type info struct {
+    task  *appcomm.Task
+    score float64
+  }
+  bestResult := make([]info, 0)
+  subResult := make([]info, 0)
+  finalResult := make([]*appcomm.Task, numOfTasks, numOfTasks)
+  sourceGeoID := geohash.Encode(clientInfo.geoLocation.Lat, clientInfo.geoLocation.Lon)
   // Select task in taskTable
   for _, task := range t.tasks {
     // Check (1) appId (2) geo-locality (3) resource-availability (4) bandwidth (no way now)
-    // 
-    if task.status == "running"{
-      result = append(result, &appcomm.Task{
-        Ip: task.ip,
+
+    // Status check
+    if task.status != "running" {
+      continue
+    }
+
+    // Resource Check
+    availCpu := float64(task.resourceUsage["CPU"].Total) * task.resourceUsage["CPU"].Available
+    availMem := float64(task.resourceUsage["Memory"].Total) * task.resourceUsage["Memory"].Available
+    requireCpu := 2.0
+    requireMem := 1000000000.0
+    if availCpu < requireCpu || availMem < requireMem{
+      subResult = append(subResult, info{
+        task: &appcomm.Task{Ip: task.ip},
+        score: 0.5 * availCpu / requireCpu + 0.5 * availMem / requireMem,
       })
-      if len(result) >= numOfTasks {
-        break
-      }
+    } else {
+      taskGeoID := geohash.Encode(task.geoLocation.GetLat(), task.geoLocation.GetLon())
+      distance := proximityComparison([]rune(sourceGeoID), []rune(taskGeoID))
+      bestResult = append(bestResult, info{
+        task: &appcomm.Task{Ip: task.ip},
+        score: float64(distance),
+      })
     }
   }
+
+  if len(bestResult) >= 3 {
+    // Select tasks with least distance
+    if len(bestResult) > 3 {
+      sort.Slice(bestResult, func(i, j int) bool { return bestResult[i].score < bestResult[j].score })
+    }
+    for i:=0; i < numOfTasks; i++ {
+      finalResult[i] = bestResult[i].task
+    }
+  } else {
+    // Select tasks from less optimal list
+    sort.Slice(subResult, func(i, j int) bool { return subResult[i].score < subResult[j].score })
+    i := 0
+    for i < len(bestResult) {
+      finalResult[i] = bestResult[i].task
+      i++
+    }
+    for i < numOfTasks {
+      finalResult[i] = subResult[i - len(bestResult)].task
+    }
+  }
+
   return &appcomm.TaskList{
-    TaskList: result,
+    TaskList: finalResult,
   }, nil
+}
+
+// Helper function
+func proximityComparison(ghSrc, ghDst []rune) int {
+  ghSrcLen := len(ghSrc)
+
+  prefixMatchCount := 0
+
+  for i := 0; i < ghSrcLen; i++ {
+    if ghSrc[i] == ghDst[i] {
+      prefixMatchCount++
+    } else {
+      break
+    }
+  }
+  return prefixMatchCount
 }
