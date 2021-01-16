@@ -54,6 +54,9 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
   for i := 0; i < int(application.NumOfDuplication); i++ {
     lat := originalRequest.Taskspec.DataSources.Lat + rand.Float64()*0.2
     lon := originalRequest.Taskspec.DataSources.Lon + rand.Float64()*0.2
+    log.Print(lat)
+    log.Print(lat)
+    log.Println("=========")
     // lat := rand.Float64() * 100
     // lon := rand.Float64() * 100
     tid := i+1
