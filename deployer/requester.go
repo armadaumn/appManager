@@ -15,7 +15,7 @@ func main() {
   var opts []grpc.DialOption
   opts = append(opts, grpc.WithInsecure())
   opts = append(opts, grpc.WithBlock())
-	conn, err := grpc.Dial("localhost:8888", opts...)
+	conn, err := grpc.Dial("3.91.145.215:8888", opts...)
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)
 	}
@@ -39,7 +39,7 @@ func main() {
 		// 	Size:     1,
 		// 	NReplica: 3,
 		// },
-		DataSources: &appcomm.Location{Lat: 44.9583511, Lon: -93.18629},
+		DataSources: &appcomm.Location{Lat: 44.998351727914, Lon: -93.26622272302791},
 	}
 	taskSpec.ResourceMap["CPU"] = &appcomm.ResourceRequirement{
 		Weight:    0.5,
@@ -54,7 +54,7 @@ func main() {
 	taskSpec.Ports["80"] = ""
 	request := &appcomm.TaskRequest{
 		AppId:    &appcomm.UUID{Value: "App_1"},
-		Image:    "nikhs247/armadataskimage",
+		Image:    "docker.io/nikhs247/armadataskimage",
 		Command:  []string{"0.0.0.0", "8080"},
 		Tty:      true,
 		Limits:   &appcomm.TaskLimits{CpuShares: 2},

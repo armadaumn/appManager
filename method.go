@@ -52,8 +52,10 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 
   // For each duplication, send a task request to Spinner
   for i := 0; i < int(application.NumOfDuplication); i++ {
-    lat := rand.Float64() * 100
-    lon := rand.Float64() * 100
+    lat := originalRequest.Taskspec.DataSources.Lat + rand.Float64()*0.2
+    lon := originalRequest.Taskspec.DataSources.Lon + rand.Float64()*0.2
+    // lat := rand.Float64() * 100
+    // lon := rand.Float64() * 100
     tid := i+1
     request := CopyRequest(originalRequest, "t"+strconv.Itoa(tid), lat, lon)
     // use a new routine to send out this request
