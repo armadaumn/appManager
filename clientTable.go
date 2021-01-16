@@ -4,7 +4,7 @@ import (
   "sync"
   //"errors"
   //"log"
-  appcomm "github.com/lei6669/appManager/appcomm"
+  appcomm "github.com/armadanet/appManager/appcomm"
 )
 
 // Define client table

@@ -1,7 +1,7 @@
 package main
 
 import (
-  "github.com/lei6669/appManager"
+  "github.com/armadanet/appManager"
 )
 
 func main() {

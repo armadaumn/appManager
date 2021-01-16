@@ -11,9 +11,10 @@ import (
   // "io"
   "log"
   "fmt"
+  "strconv"
   "google.golang.org/grpc"
-  // spincomm "github.com/lei6669/simulateArmada/appManager/spincomm"
-  appcomm "github.com/lei6669/appManager/appcomm"
+  appcomm "github.com/armadanet/appManager/appcomm"
+  spincomm "github.com/armadanet/appManager/spincomm"
 )
 
 type AppManagerServer struct {
@@ -48,13 +49,33 @@ func NewAppManagerServer() (*AppManagerServer) {
 }
 
 func (server *AppManagerServer) Run() {
+  // Hard code for tests
+  ports := []string{"8080", "8070", "8090"}
+  for q:=0; q<3; q++ {
+    newTask := &Task{
+      taskId: &spincomm.UUID{Value: strconv.Itoa(q+1),},
+      appId: &spincomm.UUID{Value: strconv.Itoa(1),},
+      // Status of this task: created, scheduled, running, interrupt, finish, cancel, noResource
+      status: "running",  // assume the task must be running if response sent back
+      ip: "10.131.132.248",
+      port: ports[q],
+      // TODO: add geoLocation from response TaskLog
+      geoLocation: &spincomm.Location{
+        Lat: 1.1,
+        Lon: 1.1,
+      },
+    }
+    server.taskTable.AddTask(newTask)
+  }
+
+
   // Set to accept os signal channel
   signalChan := make(chan os.Signal, 1)
   signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
   // Initializing application manager server
   port := 8888
-  lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
+  lis, err := net.Listen("tcp", fmt.Sprintf("10.131.250.195:%d", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

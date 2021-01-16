@@ -1,13 +1,13 @@
 package appManager
 
 import (
-  appcomm "github.com/lei6669/appManager/appcomm"
-  spincomm "github.com/lei6669/appManager/spincomm"
   "errors"
   "log"
   "sort"
   "sync"
   "github.com/mmcloughlin/geohash"
+  spincomm "github.com/armadanet/appManager/spincomm"
+  appcomm "github.com/armadanet/appManager/appcomm"
 )
 
 // Define task table
@@ -25,6 +25,8 @@ type Task struct {
   status              string
   // IP address of this task (with default port)
   ip                  string
+  // port
+  port                string
   // the geolocation of this task
   geoLocation         *spincomm.Location
   // real-time resource usuage
