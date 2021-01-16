@@ -39,27 +39,27 @@ func main() {
 		// 	Size:     1,
 		// 	NReplica: 3,
 		// },
-		DataSources: &appcomm.Location{Lat: 40.0196, Lon: -90.2402},
+		DataSources: &appcomm.Location{Lat: 44.9583511, Lon: -93.18629},
 	}
 	taskSpec.ResourceMap["CPU"] = &appcomm.ResourceRequirement{
 		Weight:    0.5,
-		Requested: 0,
+		Requested: 2,
 		Required:  true,
 	}
 	taskSpec.ResourceMap["Memory"] = &appcomm.ResourceRequirement{
 		Weight:    0.5,
-		Requested: 1,
+		Requested: 2000000,  // Bytes
 		Required:  true,
 	}
 	taskSpec.Ports["80"] = ""
 	request := &appcomm.TaskRequest{
 		AppId:    &appcomm.UUID{Value: "App_1"},
-		Image:    "nginx",
-		Command:  []string{},
+		Image:    "nikhs247/armadataskimage",
+		Command:  []string{"0.0.0.0", "8080"},
 		Tty:      true,
 		Limits:   &appcomm.TaskLimits{CpuShares: 2},
 		Taskspec: &taskSpec,
-		Port:     80,
+		Port:     8080,
 		TaskId:   &appcomm.UUID{Value: "task_0"},
 	}
 
