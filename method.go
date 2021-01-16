@@ -36,7 +36,7 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
     return errors.New("Duplicate AppId in the system")
   }
   // build connection to Spinner
-  dialurl := "10.131.76.169:5912"
+  dialurl := "ec2-34-238-242-228.compute-1.amazonaws.com:5912"
   var opts []grpc.DialOption
   opts = append(opts, grpc.WithInsecure())
   conn, err := grpc.Dial(dialurl, opts...)
@@ -55,7 +55,7 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
     lat := rand.Float64() * 100
     lon := rand.Float64() * 100
     tid := i+1
-    request := CopyRequest(originalRequest, strconv.Itoa(tid), lat, lon)
+    request := CopyRequest(originalRequest, "t"+strconv.Itoa(tid), lat, lon)
     // use a new routine to send out this request
     go func() {
       log.Println("Submitting task "+strconv.Itoa(tid)+" to Spinner")

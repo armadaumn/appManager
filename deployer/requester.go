@@ -29,16 +29,16 @@ func main() {
   // construct the Original task request
   taskSpec := appcomm.TaskSpec{
 		// Filters:     []string{"Resource", "Affinity"},
-    Filters:     []string{"Resource"},
+    Filters:     []string{"Resource", "Affinity"},
     Sort:        "Geolocation",
 		ResourceMap: map[string]*appcomm.ResourceRequirement{},
 		Ports:       map[string]string{},
 		IsPublic:    false,
 		NumReplicas: 1,
-		CargoSpec: &appcomm.CargoReq{
-			Size:     1,
-			NReplica: 3,
-		},
+		// CargoSpec: &appcomm.CargoReq{
+		// 	Size:     1,
+		// 	NReplica: 3,
+		// },
 		DataSources: &appcomm.Location{Lat: 40.0196, Lon: -90.2402},
 	}
 	taskSpec.ResourceMap["CPU"] = &appcomm.ResourceRequirement{
@@ -51,15 +51,15 @@ func main() {
 		Requested: 1,
 		Required:  true,
 	}
-	taskSpec.Ports["8080"] = ""
+	taskSpec.Ports["80"] = ""
 	request := &appcomm.TaskRequest{
 		AppId:    &appcomm.UUID{Value: "App_1"},
-		Image:    "zhiying12/goface-new",
+		Image:    "nginx",
 		Command:  []string{},
 		Tty:      true,
 		Limits:   &appcomm.TaskLimits{CpuShares: 2},
 		Taskspec: &taskSpec,
-		Port:     8080,
+		Port:     80,
 		TaskId:   &appcomm.UUID{Value: "task_0"},
 	}
 

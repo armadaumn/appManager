@@ -84,24 +84,22 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
     requireMem := 1000000000.0
     if availCpu < requireCpu || availMem < requireMem{
       subResult = append(subResult, info{
-        task: &appcomm.Task{Ip: task.ip},
+        task: &appcomm.Task{Ip: task.ip, Port: task.port},
         score: 0.5 * availCpu / requireCpu + 0.5 * availMem / requireMem,
       })
     } else {
       taskGeoID := geohash.Encode(task.geoLocation.GetLat(), task.geoLocation.GetLon())
       distance := proximityComparison([]rune(sourceGeoID), []rune(taskGeoID))
       bestResult = append(bestResult, info{
-        task: &appcomm.Task{Ip: task.ip},
+        task: &appcomm.Task{Ip: task.ip, Port: task.port},
         score: float64(distance),
       })
     }
   }
 
-  if len(bestResult) >= 3 {
+  if len(bestResult) >= numOfTasks {
     // Select tasks with least distance
-    if len(bestResult) > 3 {
-      sort.Slice(bestResult, func(i, j int) bool { return bestResult[i].score < bestResult[j].score })
-    }
+    sort.Slice(bestResult, func(i, j int) bool { return bestResult[i].score < bestResult[j].score })
     for i:=0; i < numOfTasks; i++ {
       finalResult[i] = bestResult[i].task
     }
@@ -115,6 +113,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
     }
     for i < numOfTasks {
       finalResult[i] = subResult[i - len(bestResult)].task
+      i++
     }
   }
 
