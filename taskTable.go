@@ -83,7 +83,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
     availMem := float64(task.resourceUsage["Memory"].Total) * task.resourceUsage["Memory"].Available
 
     ///////////////////////////////// DEBUG ///////////////////////////////////
-    fmt.Sprintf("Task %s: CPU %f Memory %f\n", task.taskId.Value, availCpu, availMem)
+    fmt.Printf("Task %s: CPU %f Memory %f\n", task.taskId.Value, availCpu, availMem)
     ///////////////////////////////////////////////////////////////////////////
     requireCpu := 2.0
     requireMem := 1000000000.0
