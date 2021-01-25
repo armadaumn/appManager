@@ -5,6 +5,7 @@ import (
   "log"
   "sort"
   "sync"
+  "fmt"
   "github.com/mmcloughlin/geohash"
   spincomm "github.com/armadanet/appManager/spincomm"
   appcomm "github.com/armadanet/appManager/appcomm"
@@ -80,6 +81,10 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
     // Resource Check
     availCpu := float64(task.resourceUsage["CPU"].Total) * task.resourceUsage["CPU"].Available
     availMem := float64(task.resourceUsage["Memory"].Total) * task.resourceUsage["Memory"].Available
+
+    ///////////////////////////////// DEBUG ///////////////////////////////////
+    fmt.Sprintf("Task %s: CPU %f Memory %f\n", task.taskId.Value, availCpu, availMem)
+    ///////////////////////////////////////////////////////////////////////////
     requireCpu := 2.0
     requireMem := 1000000000.0
     if availCpu < requireCpu || availMem < requireMem{
