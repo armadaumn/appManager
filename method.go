@@ -73,10 +73,14 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
       for {
     		taskLog, err := stream.Recv()
     		if err != nil {
-          log.Println("rpc SubmitApplication(): Response from task request fail")
-          // Delete the task from task table
-          s.taskTable.RemoveTask(strconv.Itoa(tid))
-          //
+          // no resource
+          if err.Error() == "no resource" {
+            log.Println("No resource ==> task deployment fails")
+          // task fail ==> remove it
+          } else {
+            log.Println("rpc SubmitApplication(): Response from task request fail")
+            s.taskTable.RemoveTask(strconv.Itoa(tid))
+          }
           break
     		}
         // Based on the taskLog, update the task table in application manager
