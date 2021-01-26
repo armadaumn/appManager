@@ -40,6 +40,7 @@ func main() {
 		// 	NReplica: 3,
 		// },
 		DataSources: &appcomm.Location{Lat: 44.998351727914, Lon: -93.26622272302791},
+    Tags: []string{"A"},
 	}
 	taskSpec.ResourceMap["CPU"] = &appcomm.ResourceRequirement{
 		Weight:    0.5,

@@ -92,6 +92,7 @@ message TaskSpec {
     int64 NumReplicas = 6;
     CargoReq CargoSpec = 7;
     Location DataSources = 8;
+    repeated string Tags = 9;
 }
 
 message ResourceRequirement {
