@@ -79,8 +79,8 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
     }
 
     // Resource Check
-    availCpu := float64(task.resourceUsage["CPU"].Total) * task.resourceUsage["CPU"].Available
-    availMem := float64(task.resourceUsage["Memory"].Total) * task.resourceUsage["Memory"].Available
+    availCpu := float64(task.resourceUsage["CPU"].Total) * task.resourceUsage["CPU"].Available/100.0
+    availMem := float64(task.resourceUsage["Memory"].Total) * task.resourceUsage["Memory"].Available/100.0
 
     ///////////////////////////////// DEBUG ///////////////////////////////////
     fmt.Printf("Task %s: CPU %f Memory %f\n", task.taskId.Value, availCpu, availMem)
