@@ -12,6 +12,7 @@ import (
   // "os/signal"
   // "syscall"
   // "io"
+  "strings"
   "math/rand"
   "log"
   // "fmt"
@@ -74,8 +75,8 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
     		taskLog, err := stream.Recv()
     		if err != nil {
           // no resource
-          log.Println(err.Error())
-          if err.Error() == "no resource" {
+          // log.Println(err.Error())
+          if strings.Contains(err.Error(), "no resource") {
             log.Println("No resource ==> task deployment fails")
           // task fail ==> remove it
           } else {
