@@ -29,7 +29,7 @@ func main() {
   // construct the Original task request
   taskSpec := appcomm.TaskSpec{
 		// Filters:     []string{"Resource", "Affinity"},
-    Filters:     []string{"Resource", "Affinity"},
+    Filters:     []string{"Resource", "Affinity", "Tag"},
     Sort:        "Geolocation",
 		ResourceMap: map[string]*appcomm.ResourceRequirement{},
 		Ports:       map[string]string{},
