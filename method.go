@@ -74,9 +74,11 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
       for {
     		taskLog, err := stream.Recv()
     		if err != nil {
+          // Selected node already has this task
+          if strings.Contains(err.Error(), "task is present") {
+            log.Println("Selected node already has this task")
           // no resource
-          // log.Println(err.Error())
-          if strings.Contains(err.Error(), "no resource") {
+          } else if strings.Contains(err.Error(), "no resource") {
             log.Println("No resource ==> task deployment fails")
           // task fail ==> remove it
           } else {
