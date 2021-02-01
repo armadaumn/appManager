@@ -29,6 +29,8 @@ func (c *ClientTable) AddClient(cli *Client) error {
   // if _, ok := c.clients[cli.clientId]; ok {
 	// 	return errors.New("Client id already exists in the client table")
 	// }
+
+  // TODO : check client id
 	c.clients[cli.clientId.Value] = cli
 	return nil
 }

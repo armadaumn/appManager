@@ -28,9 +28,9 @@ func main() {
   ctx := context.Background()
   // construct the Original task request
   taskSpec := appcomm.TaskSpec{
-		// Filters:     []string{"Resource", "Affinity"},
-    // Filters:     []string{"Resource", "Affinity", "Tag"},
-    Filters:     []string{"Resource", "Affinity"},
+    // Filters:     []string{"Resource", "FirstDeployment", "Tag"},
+    Filters:     []string{"Resource", "FirstDeployment"},
+    // Filters:     []string{"Resource"},
     Sort:        "Geolocation",
 		ResourceMap: map[string]*appcomm.ResourceRequirement{},
 		Ports:       map[string]string{},
@@ -56,8 +56,10 @@ func main() {
 	taskSpec.Ports["80"] = ""
 	request := &appcomm.TaskRequest{
 		AppId:    &appcomm.UUID{Value: "App_1"},
-		Image:    "docker.io/nikhs247/armadataskimage",
-		Command:  []string{"0.0.0.0", "8080"},
+    Image:    "docker.io/geoffreyhl/armadataskimage",
+		// Image:    "docker.io/nikhs247/armadataskimage",
+    // Image:    "adsfasdf",
+    Command:  []string{"0.0.0.0", "8080"},
 		Tty:      true,
 		Limits:   &appcomm.TaskLimits{CpuShares: 2},
 		Taskspec: &taskSpec,
@@ -68,7 +70,7 @@ func main() {
   // Start Request() connection
   appStatus, err := client.SubmitApplication(ctx, &appcomm.Application{
     AppId:            &appcomm.UUID{Value: "App_1"},
-    NumOfDuplication: 3,
+    NumOfDuplication: 4,
     TaskRequest:      request,
   })
   if err != nil {

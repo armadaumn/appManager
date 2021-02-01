@@ -83,7 +83,7 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
           // task fail ==> remove it
           } else {
             log.Println("rpc SubmitApplication(): Response from task request fail")
-            s.taskTable.RemoveTask(strconv.Itoa(tid))
+            s.taskTable.RemoveTask("t"+strconv.Itoa(tid))
           }
           break
     		}
