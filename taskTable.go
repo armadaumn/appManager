@@ -123,6 +123,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		}
 
 		if len(task.tag) == 0 || (useLAN && tag != task.tag[0]) {
+			log.Println("aaaaaa")
 			regularList = append(regularList, candidate)
 		} else {
 			tagList = append(tagList, candidate)
@@ -137,8 +138,8 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 	// First check if LAN already has 3 nodes
 	numberOfLANServer := len(tagList)
 	enoughLAN := false
-	if numberOfLANServer >= 3 {
-		numberOfLANServer = 3
+	if numberOfLANServer >= numOfTasks {
+		numberOfLANServer = numOfTasks
 		enoughLAN = true
 	}
 
@@ -160,7 +161,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 			}
 		})
 
-		for i := numberOfLANServer; i < 3; i++ {
+		for i := numberOfLANServer; i < numOfTasks; i++ {
 			finalResult[i] = regularList[i-numberOfLANServer].task
 		}
 	}
