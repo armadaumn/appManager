@@ -134,6 +134,9 @@ Loop:
 
 func (s *AppManagerServer) QueryTaskList(ctx context.Context, query *appcomm.Query) (*appcomm.TaskList, error) {
 	log.Println(query.ClientId)
+	log.Println(query.AppId)
+	log.Println(len(query.Tag))
+	log.Println(query.GeoLocation)
 	// get the clientInfo
 	newClient := &Client{
 		clientId:    query.ClientId,
