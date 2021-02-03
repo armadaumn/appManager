@@ -122,10 +122,10 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 			score:    0.5*availCpu + 0.5*typeScore,
 		}
 
-		// log.Printf("tagList size: %d", len(task.tag))
-		// log.Println(useLAN)
-		// log.Println(tag)
-		// log.Println(task.tag[0])
+		log.Printf("tagList size: %d", len(task.tag))
+		log.Println(useLAN)
+		log.Println(tag)
+		log.Println(task.tag[0])
 
 		if len(task.tag) == 0 || (useLAN && tag != task.tag[0]) {
 			log.Println("aaaaaa")
