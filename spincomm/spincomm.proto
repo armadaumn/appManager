@@ -47,6 +47,9 @@ message TaskLog {
     string ip = 2;
     string port = 3;
     map<string, ResourceStatus> host_resource = 4;
+    Location location = 5;
+    repeated string tag = 6;
+    int64 node_type = 7;
 }
 
 message TaskCompletion {

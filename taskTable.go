@@ -1,44 +1,49 @@
 package appManager
 
 import (
-  "errors"
-  "log"
-  "sort"
-  "sync"
-  "fmt"
-  "github.com/mmcloughlin/geohash"
-  spincomm "github.com/armadanet/appManager/spincomm"
-  appcomm "github.com/armadanet/appManager/appcomm"
+	"errors"
+	"fmt"
+	"log"
+	"sort"
+	"sync"
+
+	appcomm "github.com/armadanet/appManager/appcomm"
+	spincomm "github.com/armadanet/appManager/spincomm"
+	"github.com/mmcloughlin/geohash"
 )
 
 // Define task table
 type TaskTable struct {
-  mutex           *sync.Mutex
-  tasks           map[string]*Task
+	mutex *sync.Mutex
+	tasks map[string]*Task
 }
 
 type Task struct {
-  // id of the task
-  taskId              *spincomm.UUID
-  // app id of this task
-  appId               *spincomm.UUID
-  // Status of this task: created, scheduled, running, interrupt, finish, cancel, noResource
-  status              string
-  // IP address of this task (with default port)
-  ip                  string
-  // port
-  port                string
-  // the geolocation of this task
-  geoLocation         *spincomm.Location
-  // real-time resource usuage
-  resourceUsage       map[string]*spincomm.ResourceStatus
+	// id of the task
+	taskId *spincomm.UUID
+	// app id of this task
+	appId *spincomm.UUID
+	// Status of this task: created, scheduled, running, interrupt, finish, cancel, noResource
+	status string
+	// IP address of this task (with default port)
+	ip string
+	// port
+	port string
+	// info about LAN
+	tag []string
+	// public server or PC
+	nodeType int
+	// the geolocation of this task
+	geoLocation *spincomm.Location
+	// real-time resource usuage
+	resourceUsage map[string]*spincomm.ResourceStatus
 }
 
 // Add new task into task table
 func (t *TaskTable) AddTask(ta *Task) error {
-  t.mutex.Lock()
-  defer t.mutex.Unlock()
-  // if _, ok := t.tasks[ta.taskId]; ok {
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+	// if _, ok := t.tasks[ta.taskId]; ok {
 	// 	return errors.New("Task id already exists in the task table")
 	// }
 	t.tasks[ta.taskId.Value] = ta
@@ -46,99 +51,137 @@ func (t *TaskTable) AddTask(ta *Task) error {
 }
 
 func (t *TaskTable) RemoveTask(taskId string) error {
-  t.mutex.Lock()
-  defer t.mutex.Unlock()
-  log.Println("Removing task: "+taskId)
-  t.tasks[taskId].status = "failed"
-  return nil
+	t.mutex.Lock()
+	defer t.mutex.Unlock()
+	log.Println("Removing task: " + taskId)
+	t.tasks[taskId].status = "failed"
+	return nil
 }
 
 // Leak: lock holds too long if there are a lot of tasks
 func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.TaskList, error) {
-  t.mutex.Lock()
-  defer t.mutex.Unlock()
-  if numOfTasks > len(t.tasks) {
-    return nil, errors.New("Not enough tasks in the system")
-  }
 
-  type info struct {
-    task  *appcomm.Task
-    score float64
-  }
-  bestResult := make([]info, 0)
-  subResult := make([]info, 0)
-  finalResult := make([]*appcomm.Task, numOfTasks, numOfTasks)
-  sourceGeoID := geohash.Encode(clientInfo.geoLocation.Lat, clientInfo.geoLocation.Lon)
-  // Select task in taskTable
-  for _, task := range t.tasks {
-    // Check (1) appId (2) geo-locality (3) resource-availability (4) bandwidth (no way now)
+	type info struct {
+		task     *appcomm.Task
+		distance int
+		score    float64
+	}
 
-    // Status check
-    if task.status != "running" {
-      continue
-    }
+	// Candidate task without specified tag
+	regularList := make([]info, 0)
+	// Candidate task with specified tag
+	tagList := make([]info, 0)
+	// Selected Task list
+	finalResult := make([]*appcomm.Task, numOfTasks, numOfTasks)
+	// Client geo info
+	sourceGeoID := geohash.Encode(clientInfo.geoLocation.Lat, clientInfo.geoLocation.Lon)
+	// Client tag
+	useLAN := false
+	var tag string
+	if len(clientInfo.tag) != 0 {
+		useLAN = true
+		tag = clientInfo.tag[0]
+	}
 
-    // Resource Check
-    availCpu := float64(task.resourceUsage["CPU"].Total) * task.resourceUsage["CPU"].Available/100.0
-    availMem := float64(task.resourceUsage["Memory"].Total) * task.resourceUsage["Memory"].Available/100.0
+	t.mutex.Lock()
+	if numOfTasks > len(t.tasks) {
+		t.mutex.Unlock()
+		return nil, errors.New("Not enough tasks in the system")
+	}
 
-    ///////////////////////////////// DEBUG ///////////////////////////////////
-    fmt.Printf("Task %s: CPU %f Memory %f\n", task.taskId.Value, availCpu, availMem)
-    ///////////////////////////////////////////////////////////////////////////
-    requireCpu := 2.0
-    requireMem := 1000000000.0
-    if availCpu < requireCpu || availMem < requireMem{
-      subResult = append(subResult, info{
-        task: &appcomm.Task{Ip: task.ip, Port: task.port},
-        score: 0.5 * availCpu / requireCpu + 0.5 * availMem / requireMem,
-      })
-    } else {
-      taskGeoID := geohash.Encode(task.geoLocation.GetLat(), task.geoLocation.GetLon())
-      distance := proximityComparison([]rune(sourceGeoID), []rune(taskGeoID))
-      bestResult = append(bestResult, info{
-        task: &appcomm.Task{Ip: task.ip, Port: task.port},
-        score: float64(distance),
-      })
-    }
-  }
+	// Traverse all tasks in task table
+	for _, task := range t.tasks {
+		// Check (1) appId (2) running status
+		if task.appId.Value != clientInfo.appId.Value || task.status != "running" {
+			continue
+		}
 
-  if len(bestResult) >= numOfTasks {
-    // Select tasks with least distance
-    sort.Slice(bestResult, func(i, j int) bool { return bestResult[i].score < bestResult[j].score })
-    for i:=0; i < numOfTasks; i++ {
-      finalResult[i] = bestResult[i].task
-    }
-  } else {
-    // Select tasks from less optimal list
-    sort.Slice(subResult, func(i, j int) bool { return subResult[i].score < subResult[j].score })
-    i := 0
-    for i < len(bestResult) {
-      finalResult[i] = bestResult[i].task
-      i++
-    }
-    for i < numOfTasks {
-      finalResult[i] = subResult[i - len(bestResult)].task
-      i++
-    }
-  }
+		// Calculate the average cpu usage during a period T
+		availCpu := float64(task.resourceUsage["CPU"].Total) * task.resourceUsage["CPU"].Available / 100.0
+		availMem := float64(task.resourceUsage["Memory"].Total) * task.resourceUsage["Memory"].Available / 100.0
 
-  return &appcomm.TaskList{
-    TaskList: finalResult,
-  }, nil
+		///////////////////////////////// DEBUG ///////////////////////////////////
+		fmt.Printf("Task %s: CPU %f Memory %f\n", task.taskId.Value, availCpu, availMem)
+		///////////////////////////////////////////////////////////////////////////
+
+		// (1) tag (2) geo-locality (3) resource-availability (cpu + *memory + *gpu) (4) node type (5) *bandwidth
+
+		// Calculate the relative distance
+		taskGeoID := geohash.Encode(task.geoLocation.GetLat(), task.geoLocation.GetLon())
+		distance := proximityComparison([]rune(sourceGeoID), []rune(taskGeoID))
+		// calculate score based on resource and node type
+		var typeScore float64
+		if task.nodeType == 2 {
+			typeScore = 4
+		} else {
+			typeScore = 2
+		}
+		candidate := info{
+			task:     &appcomm.Task{Ip: task.ip, Port: task.port},
+			distance: distance,
+			score:    0.5*availCpu + 0.5*typeScore,
+		}
+
+		if len(task.tag) == 0 || (useLAN && tag != task.tag[0]) {
+			regularList = append(regularList, candidate)
+		} else {
+			tagList = append(tagList, candidate)
+		}
+	}
+	t.mutex.Unlock()
+
+	// Calculate the candidate score
+	// (1) Geo-proximity
+	// (2) resource + node type
+
+	// First check if LAN already has 3 nodes
+	numberOfLANServer := len(tagList)
+	enoughLAN := false
+	if numberOfLANServer >= 3 {
+		numberOfLANServer = 3
+		enoughLAN = true
+	}
+
+	// TODO: if we have multiple LAN node, sort them with score
+	for i := 0; i < numberOfLANServer; i++ {
+		finalResult[i] = tagList[i].task
+	}
+
+	// If LAN node < 3, then fill out the rest with WAN node
+	if !enoughLAN {
+		// sort by distance and then sort by (resource + node_type)
+		sort.Slice(regularList, func(i, j int) bool {
+			if regularList[i].distance > regularList[j].distance {
+				return true
+			} else if regularList[i].distance < regularList[j].distance {
+				return false
+			} else {
+				return regularList[i].score > regularList[j].score
+			}
+		})
+
+		for i := numberOfLANServer; i < 3; i++ {
+			finalResult[i] = regularList[i-numberOfLANServer].task
+		}
+	}
+
+	return &appcomm.TaskList{
+		TaskList: finalResult,
+	}, nil
 }
 
 // Helper function
 func proximityComparison(ghSrc, ghDst []rune) int {
-  ghSrcLen := len(ghSrc)
+	ghSrcLen := len(ghSrc)
 
-  prefixMatchCount := 0
+	prefixMatchCount := 0
 
-  for i := 0; i < ghSrcLen; i++ {
-    if ghSrc[i] == ghDst[i] {
-      prefixMatchCount++
-    } else {
-      break
-    }
-  }
-  return prefixMatchCount
+	for i := 0; i < ghSrcLen; i++ {
+		if ghSrc[i] == ghDst[i] {
+			prefixMatchCount++
+		} else {
+			break
+		}
+	}
+	return prefixMatchCount
 }

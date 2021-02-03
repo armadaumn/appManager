@@ -67,7 +67,8 @@ message AppStatus {
 message Query {
   UUID clientId = 1;
   Location geoLocation = 2;
-  UUID appId = 3;
+  repeated string tag = 3;
+  UUID appId = 4;
 }
 
 message TaskList {
