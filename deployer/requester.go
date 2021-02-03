@@ -55,7 +55,7 @@ func main() {
 	}
 	taskSpec.Ports["80"] = ""
 	request := &appcomm.TaskRequest{
-		AppId:    &appcomm.UUID{Value: "App_1"},
+		AppId:    &appcomm.UUID{Value: "1"},
     Image:    "docker.io/geoffreyhl/armadataskimage",
 		// Image:    "docker.io/nikhs247/armadataskimage",
     // Image:    "adsfasdf",

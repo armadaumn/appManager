@@ -92,9 +92,6 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 	// Traverse all tasks in task table
 	for _, task := range t.tasks {
 
-		log.Println(task.appId.Value)
-		log.Println(clientInfo.appId.Value)
-		log.Println(task.status)
 		// Check (1) appId (2) running status
 		if task.appId.Value != clientInfo.appId.Value || task.status != "running" {
 			continue
@@ -120,19 +117,15 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		} else {
 			typeScore = 2
 		}
+
 		candidate := info{
 			task:     &appcomm.Task{Ip: task.ip, Port: task.port},
 			distance: distance,
 			score:    0.5*availCpu + 0.5*typeScore,
 		}
-
-		log.Printf("tagList size: %d", len(task.tag))
-		log.Println(useLAN)
-		log.Println(tag)
-		log.Println(task.tag[0])
+		log.Printf("%s: distance %d, score %f", task.ip, distance, candidate.score)
 
 		if len(task.tag) == 0 || (useLAN && tag != task.tag[0]) {
-			log.Println("aaaaaa")
 			regularList = append(regularList, candidate)
 		} else {
 			tagList = append(tagList, candidate)
