@@ -91,6 +91,9 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 
 	// Traverse all tasks in task table
 	for _, task := range t.tasks {
+		log.Println(task.appId.Value)
+		log.Println(clientInfo.appId.Value)
+		log.Println(task.status)
 
 		// Check (1) appId (2) running status
 		if task.appId.Value != clientInfo.appId.Value || task.status != "running" {
