@@ -69,7 +69,7 @@ func main() {
 
   // Start Request() connection
   appStatus, err := client.SubmitApplication(ctx, &appcomm.Application{
-    AppId:            &appcomm.UUID{Value: "App_1"},
+    AppId:            &appcomm.UUID{Value: "1"},
     NumOfDuplication: 4,
     TaskRequest:      request,
   })

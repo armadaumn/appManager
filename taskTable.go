@@ -89,11 +89,8 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		return nil, errors.New("Not enough tasks in the system")
 	}
 
-	log.Println(len(t.tasks))
 	// Traverse all tasks in task table
 	for _, task := range t.tasks {
-		log.Println(task.appId.Value)
-		log.Println(clientInfo.appId.Value)
 		// Check (1) appId (2) running status
 		if task.appId.Value != clientInfo.appId.Value || task.status != "running" {
 			continue
@@ -125,10 +122,10 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 			score:    0.5*availCpu + 0.5*typeScore,
 		}
 
-		log.Printf("tagList size: %d", len(task.tag))
-		log.Println(useLAN)
-		log.Println(tag)
-		log.Println(task.tag[0])
+		// log.Printf("tagList size: %d", len(task.tag))
+		// log.Println(useLAN)
+		// log.Println(tag)
+		// log.Println(task.tag[0])
 
 		if len(task.tag) == 0 || (useLAN && tag != task.tag[0]) {
 			log.Println("aaaaaa")
@@ -139,6 +136,9 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 	}
 	t.mutex.Unlock()
 
+	if len(tagList)+len(regularList) < numOfTasks {
+		return nil, errors.New("Not enough tasks for this application in the system")
+	}
 	// Calculate the candidate score
 	// (1) Geo-proximity
 	// (2) resource + node type
