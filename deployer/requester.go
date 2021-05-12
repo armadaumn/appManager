@@ -1,37 +1,38 @@
 package main
 
 import (
-  "context"
-  "log"
-  //"os"
-  //"os/signal"
-  //"syscall"
-  "google.golang.org/grpc"
-  appcomm "github.com/armadanet/appManager/appcomm"
+	"context"
+	"log"
+
+	//"os"
+	//"os/signal"
+	//"syscall"
+	appcomm "github.com/armadanet/appManager/appcomm"
+	"google.golang.org/grpc"
 )
 
 func main() {
-  // Connect Application manager
-  var opts []grpc.DialOption
-  opts = append(opts, grpc.WithInsecure())
-  opts = append(opts, grpc.WithBlock())
-	conn, err := grpc.Dial("3.91.145.215:8888", opts...)
+	// Connect Application manager
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithInsecure())
+	opts = append(opts, grpc.WithBlock())
+	conn, err := grpc.Dial("54.152.201.56:8888", opts...)
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)
 	}
 	defer conn.Close()
-  client := appcomm.NewApplicationManagerClient(conn)
-  // // Set os signal channel
-  // signalChan := make(chan os.Signal, 1)
-  // signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
-  // Get client context
-  ctx := context.Background()
-  // construct the Original task request
-  taskSpec := appcomm.TaskSpec{
-    // Filters:     []string{"Resource", "FirstDeployment", "Tag"},
-    Filters:     []string{"Resource", "FirstDeployment"},
-    // Filters:     []string{"Resource"},
-    Sort:        "Geolocation",
+	client := appcomm.NewApplicationManagerClient(conn)
+	// // Set os signal channel
+	// signalChan := make(chan os.Signal, 1)
+	// signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+	// Get client context
+	ctx := context.Background()
+	// construct the Original task request
+	taskSpec := appcomm.TaskSpec{
+		// Filters:     []string{"Resource", "FirstDeployment", "Tag"},
+		Filters: []string{"Resource", "FirstDeployment"},
+		// Filters:     []string{"Resource"},
+		Sort:        "Geolocation",
 		ResourceMap: map[string]*appcomm.ResourceRequirement{},
 		Ports:       map[string]string{},
 		IsPublic:    false,
@@ -41,7 +42,7 @@ func main() {
 		// 	NReplica: 3,
 		// },
 		DataSources: &appcomm.Location{Lat: 44.998351727914, Lon: -93.26622272302791},
-    Tags: []string{"A"},
+		Tags:        []string{"A"},
 	}
 	taskSpec.ResourceMap["CPU"] = &appcomm.ResourceRequirement{
 		Weight:    0.5,
@@ -50,16 +51,14 @@ func main() {
 	}
 	taskSpec.ResourceMap["Memory"] = &appcomm.ResourceRequirement{
 		Weight:    0.5,
-		Requested: 2000000,  // Bytes
+		Requested: 2000000, // Bytes
 		Required:  true,
 	}
 	taskSpec.Ports["80"] = ""
 	request := &appcomm.TaskRequest{
 		AppId:    &appcomm.UUID{Value: "1"},
-    Image:    "docker.io/geoffreyhl/armadataskimage",
-		// Image:    "docker.io/nikhs247/armadataskimage",
-    // Image:    "adsfasdf",
-    Command:  []string{"0.0.0.0", "8080"},
+		Image:    "docker.io/armadaumn/objectdetection",
+		Command:  []string{"0.0.0.0", "8080"},
 		Tty:      true,
 		Limits:   &appcomm.TaskLimits{CpuShares: 2},
 		Taskspec: &taskSpec,
@@ -67,25 +66,25 @@ func main() {
 		TaskId:   &appcomm.UUID{Value: "task_0"},
 	}
 
-  // Start Request() connection
-  appStatus, err := client.SubmitApplication(ctx, &appcomm.Application{
-    AppId:            &appcomm.UUID{Value: "1"},
-    NumOfDuplication: 4,
-    TaskRequest:      request,
-  })
-  if err != nil {
-    log.Println(err)
-    return
-  }
+	// Start Request() connection
+	appStatus, err := client.SubmitApplication(ctx, &appcomm.Application{
+		AppId:            &appcomm.UUID{Value: "1"},
+		NumOfDuplication: 4,
+		TaskRequest:      request,
+	})
+	if err != nil {
+		log.Println(err)
+		return
+	}
 
-  // print out deploy results
-  for {
-    deployResult, err := appStatus.Recv()
-    if err != nil {
-      log.Println(err)
-      return
-    }
-    log.Println(deployResult)
-  }
+	// print out deploy results
+	for {
+		deployResult, err := appStatus.Recv()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		log.Println(deployResult)
+	}
 
 }

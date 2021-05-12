@@ -28,10 +28,21 @@ func main() {
 	// Call Query() connection
 	list, err := client.QueryTaskList(ctx, &appcomm.Query{
 		ClientId: &appcomm.UUID{Value: strconv.Itoa(1)},
+		// Rochester
+		// GeoLocation: &appcomm.Location{
+		// 	Lat: 44.02,
+		// 	Lon: -92.47,
+		// },
+		// Minnespolis
 		GeoLocation: &appcomm.Location{
-			Lat: 1.1,
-			Lon: 1.1,
+			Lat: 44.98,
+			Lon: -93.24,
 		},
+		// Duluth
+		// GeoLocation: &appcomm.Location{
+		// 	Lat: 46.79,
+		// 	Lon: -92.11,
+		// },
 		Tag:   []string{"This is a tag"},
 		AppId: &appcomm.UUID{Value: strconv.Itoa(1)},
 	})
