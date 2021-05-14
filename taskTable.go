@@ -2,6 +2,7 @@ package appManager
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"sort"
 	"sync"
@@ -167,6 +168,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		}
 	}
 
+	fmt.Println(len(finalResult)) ////////////////
 	// Second add regular node
 	// Sort the regular list - sort by distance and then sort by (resource + node_type)
 	sort.Slice(regularList, func(i, j int) bool {
@@ -185,6 +187,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		if nodeAlreadyExist(finalResult, regularList[i].task) {
 			continue
 		}
+		ffmt.Println(len(regularList[i].task.Ip)) ////////////////
 		finalResult = append(finalResult, regularList[i].task)
 		if len(finalResult) == 3 {
 			return &appcomm.TaskList{
