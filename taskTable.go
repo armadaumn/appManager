@@ -155,6 +155,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 
 	// First add lan node
 	numberOfLANServer := len(tagList)
+	fmt.Println(len(numberOfLANServer))
 	for i := 0; i < numberOfLANServer; i++ {
 		// if there is a task of this node already exists
 		if nodeAlreadyExist(finalResult, tagList[i].task) {
