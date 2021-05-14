@@ -2,7 +2,6 @@ package appManager
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"sort"
 	"sync"
@@ -105,11 +104,12 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		// Calculate the average cpu usage during a period T
 		// availCpu := float64(task.resourceUsage["CPU"].Total) * task.resourceUsage["CPU"].Available / 100.0
 		availCpu := float64(float64(task.assignedCpu) * (1 - task.cpuUtilization/100.0))
+		totalCpuOnNode := task.resourceUsage["CPU"].Total / 100
 		// availMem := float64(task.resourceUsage["Memory"].Total) * task.resourceUsage["Memory"].Available / 100.0
 
 		///////////////////////////////// DEBUG ///////////////////////////////////
 		// fmt.Printf("Task %s: CPU %f Memory %f\n", task.taskId.Value, availCpu, availMem)
-		fmt.Printf("Task %s -- Assigned CPU: %v -- Utilization: %v\n", task.taskId.Value, task.assignedCpu, task.cpuUtilization)
+		log.Printf("Task %s -- Assigned: %v -- Total: %v -- Used: %v\n", task.taskId.Value, task.assignedCpu, totalCpuOnNode, task.cpuUtilization)
 		///////////////////////////////////////////////////////////////////////////
 
 		// (1) tag (2) geo-locality (3) resource-availability (cpu + *memory + *gpu) (4) node type (5) *bandwidth
