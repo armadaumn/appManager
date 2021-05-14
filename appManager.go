@@ -30,12 +30,13 @@ type AppManagerServer struct {
 	taskTable *TaskTable
 	// Client table
 	clientTable *ClientTable
-
+	// SpinnerURL
+	spinnerURL string
 	// TODO temp:
 	scaleN int
 }
 
-func NewAppManagerServer(n int) *AppManagerServer {
+func NewAppManagerServer(url string, n int) *AppManagerServer {
 	// Init appManager server
 	appManagerServer := &AppManagerServer{
 		appTable: &AppTable{
@@ -50,7 +51,8 @@ func NewAppManagerServer(n int) *AppManagerServer {
 			mutex:   &sync.Mutex{},
 			clients: make(map[string]*Client),
 		},
-		scaleN: n,
+		spinnerURL: url,
+		scaleN:     n,
 	}
 	return appManagerServer
 }

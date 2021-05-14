@@ -39,10 +39,9 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 		return errors.New("Duplicate AppId in the system")
 	}
 	// build connection to Spinner
-	dialurl := "ec2-34-238-242-228.compute-1.amazonaws.com:5912"
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithInsecure())
-	conn, err := grpc.Dial(dialurl, opts...)
+	conn, err := grpc.Dial(s.spinnerURL, opts...)
 	if err != nil {
 		log.Println("rpc SubmitApplication(): Connect to Spinner fails")
 		return err
