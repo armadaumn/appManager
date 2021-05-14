@@ -104,7 +104,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		// Calculate the average cpu usage during a period T
 		// availCpu := float64(task.resourceUsage["CPU"].Total) * task.resourceUsage["CPU"].Available / 100.0
 		availCpu := float64(float64(task.assignedCpu) * (1 - task.cpuUtilization/100.0))
-		totalCpuOnNode := task.resourceUsage["CPU"].Total / 100.0
+		totalCpuOnNode := task.resourceUsage["CPU"].Total
 		// availMem := float64(task.resourceUsage["Memory"].Total) * task.resourceUsage["Memory"].Available / 100.0
 
 		///////////////////////////////// DEBUG ///////////////////////////////////
