@@ -37,6 +37,11 @@ type Task struct {
 	geoLocation *spincomm.Location
 	// real-time resource usuage
 	resourceUsage map[string]*spincomm.ResourceStatus
+
+	// real-time task cpu usuage
+	cpuUtilization double
+	// task assigned cpu
+	assignedCpu int
 }
 
 // Add new task into task table
@@ -98,11 +103,12 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		}
 
 		// Calculate the average cpu usage during a period T
-		availCpu := float64(task.resourceUsage["CPU"].Total) * task.resourceUsage["CPU"].Available / 100.0
-		availMem := float64(task.resourceUsage["Memory"].Total) * task.resourceUsage["Memory"].Available / 100.0
+		// availCpu := float64(task.resourceUsage["CPU"].Total) * task.resourceUsage["CPU"].Available / 100.0
+		// availMem := float64(task.resourceUsage["Memory"].Total) * task.resourceUsage["Memory"].Available / 100.0
 
 		///////////////////////////////// DEBUG ///////////////////////////////////
-		fmt.Printf("Task %s: CPU %f Memory %f\n", task.taskId.Value, availCpu, availMem)
+		// fmt.Printf("Task %s: CPU %f Memory %f\n", task.taskId.Value, availCpu, availMem)
+		fmt.Printf("Task %s -- Assigned CPU: %v -- Utilization: %v", task.taskId.Value, task.assignedCpu, task.cpuUtilization)
 		///////////////////////////////////////////////////////////////////////////
 
 		// (1) tag (2) geo-locality (3) resource-availability (cpu + *memory + *gpu) (4) node type (5) *bandwidth

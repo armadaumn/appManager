@@ -104,6 +104,9 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 						Lat: taskLog.Location.Lat,
 						Lon: taskLog.Location.Lon,
 					},
+					// task cpu utilization
+					cpuUtilization: taskLog.CpuUtilization,
+					assignedCpu:    int(taskLog.AssignedCpu),
 				}
 				log.Println("New task update: " + newTask.taskId.Value)
 				// add the resource map
@@ -169,6 +172,8 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 						Lat: taskLog.Location.Lat,
 						Lon: taskLog.Location.Lon,
 					},
+					cpuUtilization: taskLog.CpuUtilization,
+					assignedCpu:    int(taskLog.AssignedCpu),
 				}
 				log.Println("New task update: " + newTask.taskId.Value)
 				// add the resource map

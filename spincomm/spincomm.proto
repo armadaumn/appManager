@@ -50,6 +50,8 @@ message TaskLog {
     Location location = 5;
     repeated string tag = 6;
     int64 node_type = 7;
+    double cpuUtilization = 8;
+    int64 assignedCpu = 9;
 }
 
 message TaskCompletion {
