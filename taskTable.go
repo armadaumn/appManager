@@ -138,7 +138,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		}
 		log.Printf("%s:%s distance %d, score %f", task.ip, task.port, distance, candidate.score)
 
-		if len(task.tag) == 0 || (useLAN && tag != task.tag[0]) {
+		if len(task.tag) == 0 || !(useLAN && tag == task.tag[0]) {
 			regularList = append(regularList, candidate)
 		} else {
 			tagList = append(tagList, candidate)
@@ -155,7 +155,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 
 	// First add lan node
 	numberOfLANServer := len(tagList)
-	fmt.Println(numberOfLANServer)
+	fmt.Println(numberOfLANServer) ////////////////
 	for i := 0; i < numberOfLANServer; i++ {
 		// if there is a task of this node already exists
 		if nodeAlreadyExist(finalResult, tagList[i].task) {
@@ -188,7 +188,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		if nodeAlreadyExist(finalResult, regularList[i].task) {
 			continue
 		}
-		fmt.Println(len(regularList[i].task.Ip)) ////////////////
+		fmt.Println(regularList[i].task.Ip) ////////////////
 		finalResult = append(finalResult, regularList[i].task)
 		if len(finalResult) == 3 {
 			return &appcomm.TaskList{
