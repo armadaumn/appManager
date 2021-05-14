@@ -109,7 +109,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 
 		///////////////////////////////// DEBUG ///////////////////////////////////
 		// fmt.Printf("Task %s: CPU %f Memory %f\n", task.taskId.Value, availCpu, availMem)
-		fmt.Printf("Task %s -- Assigned CPU: %v -- Utilization: %v", task.taskId.Value, task.assignedCpu, task.cpuUtilization)
+		fmt.Printf("Task %s -- Assigned CPU: %v -- Utilization: %v\n", task.taskId.Value, task.assignedCpu, task.cpuUtilization)
 		///////////////////////////////////////////////////////////////////////////
 
 		// (1) tag (2) geo-locality (3) resource-availability (cpu + *memory + *gpu) (4) node type (5) *bandwidth
