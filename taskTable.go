@@ -105,7 +105,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		// Total cpu on this node
 		totalCpuOnNode := task.resourceUsage["CPU"].Total
 		// Used cpu for this task
-		used := task.cpuUtilization / 100.0 * totalCpuOnNode
+		used := task.cpuUtilization / 100.0 * float64(totalCpuOnNode)
 		// availale cpu for this task
 		availCpu := float64(task.assignedCpu) - used
 
