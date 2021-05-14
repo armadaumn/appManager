@@ -72,7 +72,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 	// Candidate task with specified tag
 	tagList := make([]info, 0)
 	// Selected Task list
-	finalResult := make([]*appcomm.Task, numOfTasks, numOfTasks)
+	finalResult := make([]*appcomm.Task, 0)
 	// Client geo info
 	sourceGeoID := geohash.Encode(clientInfo.geoLocation.Lat, clientInfo.geoLocation.Lon)
 	// Client tag
@@ -123,7 +123,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 			distance: distance,
 			score:    0.5*availCpu + 0.5*typeScore,
 		}
-		log.Printf("%s: distance %d, score %f", task.ip, distance, candidate.score)
+		log.Printf("%s:%s distance %d, score %f", task.ip, task.port, distance, candidate.score)
 
 		if len(task.tag) == 0 || (useLAN && tag != task.tag[0]) {
 			regularList = append(regularList, candidate)
@@ -140,40 +140,94 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 	// (1) Geo-proximity
 	// (2) resource + node type
 
-	// First check if LAN already has 3 nodes
+	// First add lan node
 	numberOfLANServer := len(tagList)
-	enoughLAN := false
-	if numberOfLANServer >= numOfTasks {
-		numberOfLANServer = numOfTasks
-		enoughLAN = true
-	}
-
-	// TODO: if we have multiple LAN node, sort them with score
 	for i := 0; i < numberOfLANServer; i++ {
-		finalResult[i] = tagList[i].task
-	}
-
-	// If LAN node < 3, then fill out the rest with WAN node
-	if !enoughLAN {
-		// sort by distance and then sort by (resource + node_type)
-		sort.Slice(regularList, func(i, j int) bool {
-			if regularList[i].distance > regularList[j].distance {
-				return true
-			} else if regularList[i].distance < regularList[j].distance {
-				return false
-			} else {
-				return regularList[i].score > regularList[j].score
-			}
-		})
-
-		for i := numberOfLANServer; i < numOfTasks; i++ {
-			finalResult[i] = regularList[i-numberOfLANServer].task
+		// if there is a task of this node already exists
+		if nodeAlreadyExist(finalResult, tagList[i].task) {
+			continue
+		}
+		finalResult = append(finalResult, tagList[i].task)
+		if len(finalResult) == 3 {
+			return &appcomm.TaskList{
+				TaskList: finalResult,
+			}, nil
 		}
 	}
 
-	return &appcomm.TaskList{
-		TaskList: finalResult,
-	}, nil
+	// Second add regular node
+	// Sort the regular list - sort by distance and then sort by (resource + node_type)
+	sort.Slice(regularList, func(i, j int) bool {
+		if regularList[i].distance > regularList[j].distance {
+			return true
+		} else if regularList[i].distance < regularList[j].distance {
+			return false
+		} else {
+			return regularList[i].score > regularList[j].score
+		}
+	})
+
+	numberOfRegularServer := len(regularList)
+	for i := 0; i < numberOfRegularServer; i++ {
+
+		if nodeAlreadyExist(finalResult, regularList[i].task) {
+			continue
+		}
+		finalResult = append(finalResult, regularList[i].task)
+		if len(finalResult) == 3 {
+			return &appcomm.TaskList{
+				TaskList: finalResult,
+			}, nil
+		}
+	}
+
+	// not enough nodes
+	return nil, errors.New("Not enough tasks in the system after scanning everything")
+
+	// // First check if LAN already has 3 nodes
+	// numberOfLANServer := len(tagList)
+	// enoughLAN := false
+	// if numberOfLANServer >= numOfTasks {
+	// 	numberOfLANServer = numOfTasks
+	// 	enoughLAN = true
+	// }
+
+	// // TODO: if we have multiple LAN node, sort them with score
+	// for i := 0; i < numberOfLANServer; i++ {
+	// 	finalResult[i] = tagList[i].task
+	// }
+
+	// // If LAN node < 3, then fill out the rest with WAN node
+	// if !enoughLAN {
+	// 	// sort by distance and then sort by (resource + node_type)
+	// 	sort.Slice(regularList, func(i, j int) bool {
+	// 		if regularList[i].distance > regularList[j].distance {
+	// 			return true
+	// 		} else if regularList[i].distance < regularList[j].distance {
+	// 			return false
+	// 		} else {
+	// 			return regularList[i].score > regularList[j].score
+	// 		}
+	// 	})
+
+	// 	for i := numberOfLANServer; i < numOfTasks; i++ {
+	// 		finalResult[i] = regularList[i-numberOfLANServer].task
+	// 	}
+	// }
+
+	// return &appcomm.TaskList{
+	// 	TaskList: finalResult,
+	// }, nil
+}
+
+// Helper function
+func nodeAlreadyExist(finalResult []*appcomm.Task, task *appcomm.Task) bool {
+	for i := 0; i < len(finalResult); i++ {
+		if finalResult[i].Ip == task.Ip {
+			return true
+		}
+	}
+	return false
 }
 
 // Helper function
