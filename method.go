@@ -54,6 +54,7 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 	// TODO: split the geoLocation of the initial request
 
 	// For each duplication, send a task request to Spinner
+	tid := 0
 	for i := 0; i < int(application.NumOfDuplication); i++ {
 		lat := originalRequest.Taskspec.DataSources.Lat + rand.Float64()*0.2
 		lon := originalRequest.Taskspec.DataSources.Lon + rand.Float64()*0.2
@@ -62,7 +63,7 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 		log.Println("=========")
 		// lat := rand.Float64() * 100
 		// lon := rand.Float64() * 100
-		tid := i + 1
+		tid = i + 1
 		request := CopyRequest(originalRequest, "t"+strconv.Itoa(tid), lat, lon)
 		// use a new routine to send out this request
 		go func() {
@@ -116,6 +117,70 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 				s.taskTable.AddTask(newTask)
 			}
 			log.Println("One task request Connection to Spinner terminated")
+		}()
+	}
+
+	// TO BE MODIFIED: auto scaling should happen on the fly
+	// Here we just try to deploy more replicas on the same
+	for i := tid + 1; i <= tid+s.scaleN; i++ {
+		lat := originalRequest.Taskspec.DataSources.Lat + rand.Float64()*0.2
+		lon := originalRequest.Taskspec.DataSources.Lon + rand.Float64()*0.2
+		log.Print(lat)
+		log.Print(lat)
+		log.Println("=========")
+
+		request := CopyRequest(originalRequest, "t"+strconv.Itoa(i), lat, lon)
+		// Remove the "FirstDeployment" filter
+		request.Taskspec.Filters = []string{}
+		go func() {
+			log.Println("Submitting Duplicated task " + strconv.Itoa(tid) + " to Spinner")
+			spinnnerReqCtx := context.Background()
+			stream, err := client.Request(spinnnerReqCtx, request)
+			if err != nil {
+				log.Println("rpc SubmitApplication(): Send task request to Spinner fail")
+			}
+			for {
+				taskLog, err := stream.Recv()
+				if err != nil {
+					// Selected node already has this task
+					if strings.Contains(err.Error(), "task is present") {
+						log.Println("Selected node already has this task")
+						// no resource
+					} else if strings.Contains(err.Error(), "no resource") {
+						log.Println("No resource ==> task deployment fails")
+						// task fail ==> remove it
+					} else {
+						log.Println("rpc SubmitApplication(): Response from task request fail")
+						s.taskTable.RemoveTask("t" + strconv.Itoa(tid))
+					}
+					break
+				}
+				// Based on the taskLog, update the task table in application manager
+				newTask := &Task{
+					taskId: taskLog.TaskId,
+					appId:  originalRequest.AppId,
+					// Status of this task: created, scheduled, running, interrupt, finish, cancel, noResource
+					status:   "running", // assume the task must be running if response sent back
+					ip:       taskLog.Ip,
+					port:     taskLog.Port,
+					tag:      taskLog.Tag,
+					nodeType: int(taskLog.NodeType),
+					// add geoLocation of this task
+					geoLocation: &spincomm.Location{
+						Lat: taskLog.Location.Lat,
+						Lon: taskLog.Location.Lon,
+					},
+				}
+				log.Println("New task update: " + newTask.taskId.Value)
+				// add the resource map
+				resourceMap := make(map[string]*spincomm.ResourceStatus)
+				for key, value := range taskLog.HostResource {
+					resourceMap[key] = value
+				}
+				newTask.resourceUsage = resourceMap
+				// update the task update to task table
+				s.taskTable.AddTask(newTask)
+			}
 		}()
 	}
 

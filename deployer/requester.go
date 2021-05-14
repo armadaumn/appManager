@@ -30,8 +30,8 @@ func main() {
 	// construct the Original task request
 	taskSpec := appcomm.TaskSpec{
 		// Filters:     []string{"Resource", "FirstDeployment", "Tag"},
-		Filters: []string{"Resource", "FirstDeployment"},
-		// Filters:     []string{"Resource"},
+		// Filters: []string{"Resource", "FirstDeployment"},
+		Filters:     []string{"FirstDeployment"},
 		Sort:        "Geolocation",
 		ResourceMap: map[string]*appcomm.ResourceRequirement{},
 		Ports:       map[string]string{},
@@ -46,7 +46,7 @@ func main() {
 	}
 	taskSpec.ResourceMap["CPU"] = &appcomm.ResourceRequirement{
 		Weight:    0.5,
-		Requested: 2,
+		Requested: 6,
 		Required:  true,
 	}
 	taskSpec.ResourceMap["Memory"] = &appcomm.ResourceRequirement{
@@ -69,7 +69,7 @@ func main() {
 	// Start Request() connection
 	appStatus, err := client.SubmitApplication(ctx, &appcomm.Application{
 		AppId:            &appcomm.UUID{Value: "1"},
-		NumOfDuplication: 4,
+		NumOfDuplication: 3,
 		TaskRequest:      request,
 	})
 	if err != nil {
