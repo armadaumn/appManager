@@ -102,14 +102,19 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		}
 
 		// Calculate the average cpu usage during a period T
-		// availCpu := float64(task.resourceUsage["CPU"].Total) * task.resourceUsage["CPU"].Available / 100.0
-		availCpu := float64(float64(task.assignedCpu) * (1 - task.cpuUtilization/100.0))
+		// Total cpu on this node
 		totalCpuOnNode := task.resourceUsage["CPU"].Total
+		// Used cpu for this task
+		used := task.cpuUtilization / 100.0 * totalCpuOnNode
+		// availale cpu for this task
+		availCpu := float64(task.assignedCpu) - used
+
+		// availCpu := float64(task.resourceUsage["CPU"].Total) * task.resourceUsage["CPU"].Available / 100.0
 		// availMem := float64(task.resourceUsage["Memory"].Total) * task.resourceUsage["Memory"].Available / 100.0
 
 		///////////////////////////////// DEBUG ///////////////////////////////////
 		// fmt.Printf("Task %s: CPU %f Memory %f\n", task.taskId.Value, availCpu, availMem)
-		log.Printf("Task %s -- Assigned: %v -- Total: %v -- Used: %v\n", task.taskId.Value, task.assignedCpu, totalCpuOnNode, task.cpuUtilization)
+		log.Printf("Task %s -- Assigned: %v -- Total: %v -- Used: %v\n", task.taskId.Value, task.assignedCpu, totalCpuOnNode, used)
 		///////////////////////////////////////////////////////////////////////////
 
 		// (1) tag (2) geo-locality (3) resource-availability (cpu + *memory + *gpu) (4) node type (5) *bandwidth
