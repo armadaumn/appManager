@@ -66,7 +66,7 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 		request := CopyRequest(originalRequest, "t"+strconv.Itoa(tid), lat, lon)
 		// use a new routine to send out this request
 		go func() {
-			log.Println("Submitting task " + strconv.Itoa(request.TaskId.Value) + " to Spinner")
+			log.Println("Submitting task " + request.TaskId.Value + " to Spinner")
 			spinnnerReqCtx := context.Background()
 			stream, err := client.Request(spinnnerReqCtx, request)
 			if err != nil {
