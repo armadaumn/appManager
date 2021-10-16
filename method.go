@@ -36,7 +36,7 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 	}
 	if err := s.appTable.AddApplication(newApplication); err != nil {
 		log.Println("rpc SubmitApplication(): AppId already exists in the system")
-		return errors.New("Duplicate AppId in the system")
+		return errors.New("duplicate AppId in the system")
 	}
 	// build connection to Spinner
 	var opts []grpc.DialOption
@@ -66,6 +66,7 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 		request := CopyRequest(originalRequest, "t"+strconv.Itoa(tid), lat, lon)
 		// use a new routine to send out this request
 		go func() {
+			thisTid := tid
 			log.Println("Submitting task " + request.TaskId.Value + " to Spinner")
 			spinnnerReqCtx := context.Background()
 			stream, err := client.Request(spinnnerReqCtx, request)
@@ -85,7 +86,7 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 						// task fail ==> remove it
 					} else {
 						log.Println("rpc SubmitApplication(): Response from task request fail")
-						s.taskTable.RemoveTask("t" + strconv.Itoa(tid))
+						s.taskTable.RemoveTask("t" + strconv.Itoa(thisTid))
 					}
 					break
 				}

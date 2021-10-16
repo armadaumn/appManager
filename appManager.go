@@ -98,8 +98,8 @@ func (server *AppManagerServer) Run() {
 	var appManagerWaitGroup sync.WaitGroup
 	// 2) Start appManager Server routine
 	appcomm.RegisterApplicationManagerServer(grpcServer, server)
+	appManagerWaitGroup.Add(1)
 	go func() {
-		appManagerWaitGroup.Add(1)
 		defer appManagerWaitGroup.Done()
 		if err := grpcServer.Serve(lis); err != nil {
 			cancel()

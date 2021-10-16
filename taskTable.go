@@ -91,7 +91,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 	t.mutex.Lock()
 	if numOfTasks > len(t.tasks) {
 		t.mutex.Unlock()
-		return nil, errors.New("Not enough tasks in the system")
+		return nil, errors.New("not enough tasks in the system")
 	}
 
 	// Traverse all tasks in task table
@@ -147,7 +147,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 	t.mutex.Unlock()
 
 	if len(tagList)+len(regularList) < numOfTasks {
-		return nil, errors.New("Not enough tasks for this application in the system")
+		return nil, errors.New("not enough tasks for this application in the system")
 	}
 	// Calculate the candidate score
 	// (1) Geo-proximity
@@ -198,7 +198,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 	}
 
 	// not enough nodes
-	return nil, errors.New("Not enough tasks in the system after scanning everything")
+	return nil, errors.New("not enough tasks in the system after scanning everything")
 
 	// // First check if LAN already has 3 nodes
 	// numberOfLANServer := len(tagList)

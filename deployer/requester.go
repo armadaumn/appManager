@@ -16,7 +16,7 @@ func main() {
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithInsecure())
 	opts = append(opts, grpc.WithBlock())
-	conn, err := grpc.Dial("54.152.201.56:8888", opts...)
+	conn, err := grpc.Dial("3.86.179.242:8888", opts...)
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)
 	}
