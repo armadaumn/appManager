@@ -32,11 +32,13 @@ type AppManagerServer struct {
 	clientTable *ClientTable
 	// SpinnerURL
 	spinnerURL string
+	// TopN value
+	topN int
 	// TODO temp:
 	scaleN int
 }
 
-func NewAppManagerServer(url string, n int) *AppManagerServer {
+func NewAppManagerServer(url string, n int, top int) *AppManagerServer {
 	// Init appManager server
 	appManagerServer := &AppManagerServer{
 		appTable: &AppTable{
@@ -52,6 +54,7 @@ func NewAppManagerServer(url string, n int) *AppManagerServer {
 			clients: make(map[string]*Client),
 		},
 		spinnerURL: url,
+		topN:       top,
 		scaleN:     n,
 	}
 	return appManagerServer

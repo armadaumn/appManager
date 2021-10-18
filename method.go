@@ -212,7 +212,7 @@ func (s *AppManagerServer) QueryTaskList(ctx context.Context, query *appcomm.Que
 	}
 	s.clientTable.AddClient(newClient)
 	// query from task table based on the
-	result, err := s.taskTable.SelectTask(1, newClient)
+	result, err := s.taskTable.SelectTask(s.topN, newClient)
 	if err != nil {
 		log.Println("Task selection fail")
 		return nil, errors.New("Task selection fail")
