@@ -161,7 +161,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 			continue
 		}
 		finalResult = append(finalResult, tagList[i].task)
-		if len(finalResult) == 3 {
+		if len(finalResult) == numOfTasks {
 			return &appcomm.TaskList{
 				TaskList: finalResult,
 			}, nil
@@ -188,7 +188,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		}
 		fmt.Println(regularList[i].task.Ip) ////////////////
 		finalResult = append(finalResult, regularList[i].task)
-		if len(finalResult) == 3 {
+		if len(finalResult) == numOfTasks {
 			return &appcomm.TaskList{
 				TaskList: finalResult,
 			}, nil
