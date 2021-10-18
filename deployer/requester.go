@@ -56,8 +56,9 @@ func main() {
 	}
 	taskSpec.Ports["80"] = ""
 	request := &appcomm.TaskRequest{
-		AppId:    &appcomm.UUID{Value: "1"},
-		Image:    "docker.io/armadaumn/objectdetection",
+		AppId: &appcomm.UUID{Value: "1"},
+		// Image: "docker.io/armadaumn/objectdetection",
+		Image:    "docker.io/armadaumn/objectdetection2.0",
 		Command:  []string{"0.0.0.0", "8080"},
 		Tty:      true,
 		Limits:   &appcomm.TaskLimits{CpuShares: 2},

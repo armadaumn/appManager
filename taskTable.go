@@ -155,7 +155,6 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 
 	// First add lan node
 	numberOfLANServer := len(tagList)
-	fmt.Println(numberOfLANServer) ////////////////
 	for i := 0; i < numberOfLANServer; i++ {
 		// if there is a task of this node already exists
 		if nodeAlreadyExist(finalResult, tagList[i].task) {
@@ -169,7 +168,6 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		}
 	}
 
-	fmt.Println(len(finalResult)) ////////////////
 	// Second add regular node
 	// Sort the regular list - sort by distance and then sort by (resource + node_type)
 	sort.Slice(regularList, func(i, j int) bool {
