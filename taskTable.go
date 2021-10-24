@@ -115,7 +115,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 
 		///////////////////////////////// DEBUG ///////////////////////////////////
 		// fmt.Printf("Task %s: CPU %f Memory %f\n", task.taskId.Value, availCpu, availMem)
-		log.Printf("Task %s -- Assigned: %v -- Total: %v -- Used: %v\n", task.taskId.Value, task.assignedCpu, totalCpuOnNode, used)
+		log.Printf("	[Task selction log] Task %s -- Assigned: %v -- Total: %v -- Used: %v\n", task.taskId.Value, task.assignedCpu, totalCpuOnNode, used)
 		///////////////////////////////////////////////////////////////////////////
 
 		// (1) tag (2) geo-locality (3) resource-availability (cpu + *memory + *gpu) (4) node type (5) *bandwidth
@@ -136,7 +136,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 			distance: distance,
 			score:    0.5*availCpu + 0.5*typeScore,
 		}
-		log.Printf("%s:%s distance %d, score %f", task.ip, task.port, distance, candidate.score)
+		log.Printf("	[Task selction log] %s:%s distance %d, score %f", task.ip, task.port, distance, candidate.score)
 
 		if len(task.tag) == 0 || !(useLAN && tag == task.tag[0]) {
 			regularList = append(regularList, candidate)

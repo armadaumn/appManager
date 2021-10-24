@@ -191,7 +191,7 @@ func (s *AppManagerServer) SendTaskRequest(client spincomm.SpinnerClient, reques
 			} else {
 				// task fail ==> remove it
 				howMany = s.taskTable.RemoveTask("t" + strconv.Itoa(tid))
-				log.Println(strconv.Itoa(howMany) + "tasks in the system; Action: REMOVE task " + strconv.Itoa(tid))
+				log.Println("[" + strconv.Itoa(howMany) + "] tasks in the system: REMOVE the task " + strconv.Itoa(tid))
 			}
 			break
 		}
@@ -222,7 +222,7 @@ func (s *AppManagerServer) SendTaskRequest(client spincomm.SpinnerClient, reques
 		newTask.resourceUsage = resourceMap
 		// update the task update to task table
 		howMany = s.taskTable.AddTask(newTask)
-		log.Println(strconv.Itoa(howMany) + "tasks in the system; Task update from " + newTask.taskId.Value)
+		log.Println("[" + strconv.Itoa(howMany) + "] tasks in the system: Task UPDATE from " + newTask.taskId.Value)
 	}
 	// log.Println("One task request Connection to Spinner terminated")
 }
