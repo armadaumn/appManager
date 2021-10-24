@@ -182,15 +182,15 @@ func (s *AppManagerServer) SendTaskRequest(client spincomm.SpinnerClient, reques
 	for {
 		taskLog, err := stream.Recv()
 		if err != nil {
-			// Selected node already has this task
 			if strings.Contains(err.Error(), "task is present") {
-				log.Println("Selected node already has this task")
-				// no resource
+				// Selected node already has this task
+				// log.Println("Selected node already has this task")
 			} else if strings.Contains(err.Error(), "no resource") {
-				log.Println("No resource ==> task deployment fails")
-				// task fail ==> remove it
+				// no resource
+				// log.Println("No resource ==> task deployment fails")
 			} else {
-				log.Println("rpc SubmitApplication(): Response from task request fail")
+				// task fail ==> remove it
+				log.Println("rpc SubmitApplication(): Remove the task " + strconv.Itoa(tid))
 				s.taskTable.RemoveTask("t" + strconv.Itoa(tid))
 			}
 			break
@@ -214,7 +214,7 @@ func (s *AppManagerServer) SendTaskRequest(client spincomm.SpinnerClient, reques
 			cpuUtilization: taskLog.CpuUtilization,
 			assignedCpu:    int(taskLog.AssignedCpu),
 		}
-		log.Println("New task update: " + newTask.taskId.Value)
+		log.Println("Success! Task update: " + newTask.taskId.Value)
 		// add the resource map
 		resourceMap := make(map[string]*spincomm.ResourceStatus)
 		for key, value := range taskLog.HostResource {
@@ -224,7 +224,7 @@ func (s *AppManagerServer) SendTaskRequest(client spincomm.SpinnerClient, reques
 		// update the task update to task table
 		s.taskTable.AddTask(newTask)
 	}
-	log.Println("One task request Connection to Spinner terminated")
+	// log.Println("One task request Connection to Spinner terminated")
 }
 
 func (s *AppManagerServer) repeatSendRequest(client spincomm.SpinnerClient, tid int, oldRequest *spincomm.TaskRequest) {
