@@ -172,12 +172,13 @@ func (s *AppManagerServer) QueryTaskList(ctx context.Context, query *appcomm.Que
 ////////////// helper function
 
 func (s *AppManagerServer) SendTaskRequest(client spincomm.SpinnerClient, request *spincomm.TaskRequest, tid int, appId *spincomm.UUID) {
-	log.Println("Submitting task " + request.TaskId.Value + " to Spinner")
+	// log.Println("Submitting task " + request.TaskId.Value + " to Spinner")
 	spinnnerReqCtx := context.Background()
 	stream, err := client.Request(spinnnerReqCtx, request)
 	if err != nil {
 		log.Println("rpc SubmitApplication(): Send task request to Spinner fail")
 	}
+	var howMany int
 	// Periodically receive task deployment update from Spinner
 	for {
 		taskLog, err := stream.Recv()
@@ -190,8 +191,8 @@ func (s *AppManagerServer) SendTaskRequest(client spincomm.SpinnerClient, reques
 				// log.Println("No resource ==> task deployment fails")
 			} else {
 				// task fail ==> remove it
-				log.Println("rpc SubmitApplication(): Remove the task " + strconv.Itoa(tid))
-				s.taskTable.RemoveTask("t" + strconv.Itoa(tid))
+				howMany = s.taskTable.RemoveTask("t" + strconv.Itoa(tid))
+				log.Println(strconv.Itoa(howMany) + "tasks in the system; Action: REMOVE task " + strconv.Itoa(tid))
 			}
 			break
 		}
@@ -214,7 +215,6 @@ func (s *AppManagerServer) SendTaskRequest(client spincomm.SpinnerClient, reques
 			cpuUtilization: taskLog.CpuUtilization,
 			assignedCpu:    int(taskLog.AssignedCpu),
 		}
-		log.Println("Success! Task update: " + newTask.taskId.Value)
 		// add the resource map
 		resourceMap := make(map[string]*spincomm.ResourceStatus)
 		for key, value := range taskLog.HostResource {
@@ -222,7 +222,8 @@ func (s *AppManagerServer) SendTaskRequest(client spincomm.SpinnerClient, reques
 		}
 		newTask.resourceUsage = resourceMap
 		// update the task update to task table
-		s.taskTable.AddTask(newTask)
+		howMany = s.taskTable.AddTask(newTask)
+		log.Println(strconv.Itoa(howMany) + "tasks in the system; Task update from " + newTask.taskId.Value)
 	}
 	// log.Println("One task request Connection to Spinner terminated")
 }

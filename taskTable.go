@@ -45,22 +45,22 @@ type Task struct {
 }
 
 // Add new task into task table
-func (t *TaskTable) AddTask(ta *Task) error {
+func (t *TaskTable) AddTask(ta *Task) int {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 	// if _, ok := t.tasks[ta.taskId]; ok {
 	// 	return errors.New("Task id already exists in the task table")
 	// }
 	t.tasks[ta.taskId.Value] = ta
-	return nil
+	return len(t.tasks)
 }
 
-func (t *TaskTable) RemoveTask(taskId string) error {
+func (t *TaskTable) RemoveTask(taskId string) int {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 	log.Println("Removing task: " + taskId)
-	t.tasks[taskId].status = "failed"
-	return nil
+	delete(t.tasks, taskId)
+	return len(t.tasks)
 }
 
 // Leak: lock holds too long if there are a lot of tasks
