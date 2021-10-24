@@ -59,7 +59,6 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 	log.Print(lat)
 	log.Print(lat)
 	for i := 0; i < int(application.NumOfDuplication); i++ {
-		log.Println("=========")
 		// lat := rand.Float64() * 100
 		// lon := rand.Float64() * 100
 		tid := i + 1
