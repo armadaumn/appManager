@@ -2,7 +2,6 @@ package appManager
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"sort"
 	"sync"
@@ -186,7 +185,6 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		if nodeAlreadyExist(finalResult, regularList[i].task) {
 			continue
 		}
-		fmt.Println(regularList[i].task.Ip) ////////////////
 		finalResult = append(finalResult, regularList[i].task)
 		if len(finalResult) == numOfTasks {
 			return &appcomm.TaskList{
