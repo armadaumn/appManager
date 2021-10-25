@@ -63,7 +63,7 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 		tid := i + 1
 		request := CopyRequest(originalRequest, "t"+strconv.Itoa(tid), lat, lon)
 		// use a new routine to send out this request
-		fmt.Println(tid)
+		fmt.Println(request.TaskId)
 		go s.SendTaskRequest(client, request, tid, originalRequest.AppId)
 	}
 
