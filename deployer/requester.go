@@ -32,7 +32,7 @@ func main() {
 		// Filters:     []string{"Resource", "FirstDeployment", "Tag"},
 		// Filters: []string{"Resource", "FirstDeployment"},
 		Filters:     []string{"FirstDeployment"},
-		Sort:        "Geolocation",
+		Sort:        "NA",
 		ResourceMap: map[string]*appcomm.ResourceRequirement{},
 		Ports:       map[string]string{},
 		IsPublic:    false,
