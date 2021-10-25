@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -62,6 +63,7 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 		tid := i + 1
 		request := CopyRequest(originalRequest, "t"+strconv.Itoa(tid), lat, lon)
 		// use a new routine to send out this request
+		fmt.Println(tid)
 		go s.SendTaskRequest(client, request, tid, originalRequest.AppId)
 	}
 
