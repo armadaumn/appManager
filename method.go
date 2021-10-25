@@ -169,7 +169,7 @@ func (s *AppManagerServer) QueryTaskList(ctx context.Context, query *appcomm.Que
 ////////////// helper function
 
 func (s *AppManagerServer) SendTaskRequest(client spincomm.SpinnerClient, request *spincomm.TaskRequest, tid int, appId *spincomm.UUID) {
-	log.Println("Submitting task " + request.TaskId.Value + " to Spinner")
+	// log.Println("Submitting task " + request.TaskId.Value + " to Spinner")
 	spinnnerReqCtx := context.Background()
 	stream, err := client.Request(spinnnerReqCtx, request)
 	if err != nil {
