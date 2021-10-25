@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -63,7 +62,6 @@ func (s *AppManagerServer) SubmitApplication(application *appcomm.Application, a
 		tid := i + 1
 		request := CopyRequest(originalRequest, "t"+strconv.Itoa(tid), lat, lon)
 		// use a new routine to send out this request
-		fmt.Println(request.TaskId)
 		go s.SendTaskRequest(client, request, tid, originalRequest.AppId)
 	}
 
@@ -171,7 +169,7 @@ func (s *AppManagerServer) QueryTaskList(ctx context.Context, query *appcomm.Que
 ////////////// helper function
 
 func (s *AppManagerServer) SendTaskRequest(client spincomm.SpinnerClient, request *spincomm.TaskRequest, tid int, appId *spincomm.UUID) {
-	// log.Println("Submitting task " + request.TaskId.Value + " to Spinner")
+	log.Println("Submitting task " + request.TaskId.Value + " to Spinner")
 	spinnnerReqCtx := context.Background()
 	stream, err := client.Request(spinnnerReqCtx, request)
 	if err != nil {
