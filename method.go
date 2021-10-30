@@ -160,7 +160,7 @@ func (s *AppManagerServer) QueryTaskList(ctx context.Context, query *appcomm.Que
 	result, err := s.taskTable.SelectTask(s.topN, newClient)
 	if err != nil {
 		log.Println("Task selection fail")
-		return nil, errors.New("Task selection fail")
+		return nil, err
 	}
 	// return TaskList to requester
 	return result, nil

@@ -2,7 +2,9 @@ package appManager
 
 import (
 	"errors"
+	"fmt"
 	"log"
+	"os"
 	"sort"
 	"sync"
 
@@ -47,9 +49,6 @@ type Task struct {
 func (t *TaskTable) AddTask(ta *Task) int {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
-	// if _, ok := t.tasks[ta.taskId]; ok {
-	// 	return errors.New("Task id already exists in the task table")
-	// }
 	t.tasks[ta.taskId.Value] = ta
 	return len(t.tasks)
 }
@@ -87,10 +86,15 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		tag = clientInfo.tag[0]
 	}
 
+	// t.mutex.Lock()
+	// if numOfTasks > len(t.tasks) {
+	// 	t.mutex.Unlock()
+	// 	return nil, errors.New("not enough tasks in the system")
+	// }
 	t.mutex.Lock()
-	if numOfTasks > len(t.tasks) {
+	if len(t.tasks) == 0 {
 		t.mutex.Unlock()
-		return nil, errors.New("not enough tasks in the system")
+		return nil, errors.New("no tasks present in the system for now")
 	}
 
 	// Traverse all tasks in task table
@@ -98,7 +102,8 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 
 		// Check (1) appId (2) running status
 		if task.appId.Value != clientInfo.appId.Value || task.status != "running" {
-			continue
+			fmt.Println("Now this case won't exsit")
+			os.Exit(0)
 		}
 
 		// Calculate the average cpu usage during a period T
@@ -113,8 +118,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		// availMem := float64(task.resourceUsage["Memory"].Total) * task.resourceUsage["Memory"].Available / 100.0
 
 		///////////////////////////////// DEBUG ///////////////////////////////////
-		// fmt.Printf("Task %s: CPU %f Memory %f\n", task.taskId.Value, availCpu, availMem)
-		log.Printf("	[Task selction log] Task %s -- Assigned: %v -- Total: %v -- Used: %v\n", task.taskId.Value, task.assignedCpu, totalCpuOnNode, used)
+		// log.Printf("	[Task selction log] Task %s -- Assigned: %v -- Total: %v -- Used: %v\n", task.taskId.Value, task.assignedCpu, totalCpuOnNode, used)
 		///////////////////////////////////////////////////////////////////////////
 
 		// (1) tag (2) geo-locality (3) resource-availability (cpu + *memory + *gpu) (4) node type (5) *bandwidth
@@ -135,7 +139,7 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 			distance: distance,
 			score:    0.5*availCpu + 0.5*typeScore,
 		}
-		log.Printf("	[Task selction log] %s:%s distance %d, score %f", task.ip, task.port, distance, candidate.score)
+		log.Printf("	[Task selction log] %s:%s cpu [%v|%v] distance %d, score %f", task.ip, task.port, used, totalCpuOnNode, distance, candidate.score)
 
 		if len(task.tag) == 0 || !(useLAN && tag == task.tag[0]) {
 			regularList = append(regularList, candidate)
@@ -145,9 +149,6 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 	}
 	t.mutex.Unlock()
 
-	if len(tagList)+len(regularList) < numOfTasks {
-		return nil, errors.New("not enough tasks for this application in the system")
-	}
 	// Calculate the candidate score
 	// (1) Geo-proximity
 	// (2) resource + node type
@@ -187,14 +188,13 @@ func (t *TaskTable) SelectTask(numOfTasks int, clientInfo *Client) (*appcomm.Tas
 		}
 		finalResult = append(finalResult, regularList[i].task)
 		if len(finalResult) == numOfTasks {
-			return &appcomm.TaskList{
-				TaskList: finalResult,
-			}, nil
+			break
 		}
 	}
 
-	// not enough nodes
-	return nil, errors.New("not enough tasks in the system after scanning everything")
+	return &appcomm.TaskList{
+		TaskList: finalResult,
+	}, nil
 
 	// // First check if LAN already has 3 nodes
 	// numberOfLANServer := len(tagList)
